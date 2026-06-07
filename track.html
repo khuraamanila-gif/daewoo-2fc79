@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shipments Tracking</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+background:#f4f6fa;
+padding:30px;
+}
+
+.container{
+max-width:800px;
+margin:auto;
+background:#fff;
+padding:30px;
+border-radius:20px;
+box-shadow:0 10px 35px rgba(0,0,0,.12);
+}
+
+h1{
+text-align:center;
+color:#003b95;
+margin-bottom:25px;
+}
+
+.result{
+display:none;
+}
+
+.row{
+padding:14px 0;
+border-bottom:1px solid #e5e5e5;
+}
+
+.label{
+font-weight:bold;
+color:#003b95;
+}
+
+.value{
+margin-top:5px;
+font-size:17px;
+color:#333;
+}
+
+.notfound{
+display:none;
+text-align:center;
+font-size:24px;
+font-weight:bold;
+color:red;
+padding:40px 0;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>Shipment Tracking</h1>
+
+<div id="result" class="result">
+
+<div class="row">
+<div class="label">Consignment Number</div>
+<div class="value" id="cn"></div>
+</div>
+
+<div class="row">
+<div class="label">Status</div>
+<div class="value" id="status"></div>
+</div>
+
+<div class="row">
+<div class="label">Transit</div>
+<div class="value" id="transit"></div>
+</div>
+
+<div class="row">
+<div class="label">Destination</div>
+<div class="value" id="destination"></div>
+</div>
+
+</div>
+
+<div id="notfound" class="notfound">
+NOT FOUND
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyAd2Dbsk26phAA5GnwrM6gEsaZMGRPG4Pg",
+authDomain: "daewoo-2fc79.firebaseapp.com",
+projectId: "daewoo-2fc79",
+storageBucket: "daewoo-2fc79.firebasestorage.app",
+messagingSenderId: "398441736073",
+appId: "1:398441736073:web:71ab53abddfbacd252a358"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const params = new URLSearchParams(window.location.search);
+const cn = params.get("cn");
+
+const resultDiv = document.getElementById("result");
+const notFoundDiv = document.getElementById("notfound");
+
+if(!cn){
+notFoundDiv.style.display = "block";
+}
+else{
+
+try{
+
+const shipmentRef = doc(db, "shipments", cn);
+const shipmentSnap = await getDoc(shipmentRef);
+
+if(shipmentSnap.exists()){
+
+const data = shipmentSnap.data();
+
+document.getElementById("cn").textContent = cn;
+document.getElementById("status").textContent = data.Status || "";
+document.getElementById("transit").textContent = data.Transit || "";
+document.getElementById("destination").textContent = data.Destination || "";
+
+resultDiv.style.display = "block";
+
+}else{
+notFoundDiv.style.display = "block";
+}
+
+}catch(error){
+notFoundDiv.style.display = "block";
+console.error(error);
+}
+
+}
+</script>
+
+</body>
+</html>
